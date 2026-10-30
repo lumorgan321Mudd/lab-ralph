@@ -1,3 +1,11 @@
+# Ralph Loops
+
+The Ralph Loop is one of the most common AI-assisted programming techniques.
+This lab has you write your own Ralph loop and use it to solve a multi-step problem in a repo.
+At the end, an optional final step walks you through using the Ralph loop to solve the last pagila homework.
+
+We also introduce the idea of a *git worktree*.
+Worktrees are commonly used in AI workflows to allow "swarms" of AI agents to work in parallel on different tasks in the same project.
 
 ## Part 0: Project Setup
 
@@ -13,7 +21,7 @@ $ git clone https://github.com/mikeizbicki/markdown-compiler-solutionish
 $ cd markdown-compiler-solutionish
 ```
 The code is in the `markdown_compiler` folder and the instructions for the assignment in the `example/README.md` file.
-The final goal of the assignment is to convert this `README.md` file into an html file and take a screenshot of it.
+The final goal of the assignment is to convert this `README.md` file into an html file.
 Because the code is mostly completed, you can do that with the following commands:
 
 1. First install the project "locally" with the command.
@@ -38,17 +46,15 @@ Because the code is mostly completed, you can do that with the following command
     ```
     $ markdown-compiler --input_file=example/README.md
     ```
-    This should create a file `example/README.html`, and you should briefly verify it contains HTML.
+    This should create a file `example/README.html`,
+    and you should briefly verify it contains HTML.
     ```
     $ head example/README.html
     ```
-
-3. Create the actual screenshot.
+    And you can view that html in a terminal web browser
     ```
+    $ links example/README.html
     ```
-
-Sometimes we need to be working on two versions of a repo at once.
-An easy way to do that in git is to clone the repo into two different locations.
 
 ## Part 1: git worktrees
 
@@ -103,7 +109,7 @@ At this point, we are ready to write our code to fix the bug.
 
 The following command should result in a fixed test case:
 ```
-$ committe -m deepseek+openrouter <<EOF
+$ committe -m openrouter+deepseek <<EOF
 $(files-to-prompt .)
 
 $(./test.sh)
@@ -165,8 +171,16 @@ It is the stupidest possible coding agent and one of the most effective.
 The code below creates a new shell script in your home folder called `ralph.sh` which is the loop.
 
 ```bash
-$ cat > ~/ralph.sh <<EOFF
+$ cat > ~/ralph.sh <<'EOFF'
 #!/bin/bash
+
+# In order for the script to have access to the `committe` function,
+# we need to initialize dic here.
+# This is because bash functions happen at the process level,
+# and a shell script is a different process than your interactive bash repl.
+eval "$(dic --init)"
+
+# the loop is below
 for i in $(seq 0 9); do
     echo '----------------------------------------'
     echo "ralph loop i=$i"
@@ -178,16 +192,17 @@ for i in $(seq 0 9); do
     committe "$@" <<EOF
 $(files-to-prompt markdown_compiler/)
 
-The tests failed with:
-
 $(cat /tmp/out)
+
+fix the broken test
 EOF
 done
 EOFF
 ```
 In the code above, observe that:
 1. We use nested heredocs.
-    The inner-most heredoc inside the shell script uses `EOF` as the file terminator and the outermost heredoc uses `EOFF`.
+    The inner-most heredoc inside the shell script uses `EOF` as the file terminator and the outermost heredoc uses `'EOFF'`.
+    The quoting of both of these heredocs is critical for the variables to be interpreted correctly.
 2. The test cases are wrapped inside of `sandbox`.
     The `./test.sh` script will be running code that was written by an AI and that we have not reviewed... this code could do anything... but `sandbox` will ensure that it can't break our computer or commit any felonies.
 3. `committe` is called with the `"$@"` parameter.
@@ -201,6 +216,9 @@ $ chmod a+x ~/ralph.sh
 ```
 
 And now let the llm go brr....
+
+<img src=img/llm-maximalism_meme.jpg width=300px />
+
 ```
 $ cd ~/markdown-bugix # ensure we're in the right worktree
 $ ~/ralph.sh
@@ -223,9 +241,10 @@ But since everything about llms is nondeterministic, YMMV.
 
 Once your ralph loop above finishes, take a look at the git logs
 ```
-$ git log --oneline
+$ git log --oneline master..HEAD
 ```
 Observe that the loop has made many commits.
+(The `master..HEAD` syntax shows us all of the commits between the `master` branch and our current commit.)
 
 This is ugly.
 
@@ -234,7 +253,27 @@ And we know that all of these intermediate commits are broken,
 and so we will never want to checkout any of them.
 So it would be good practice to *squash* these commits into a single commit before merging.
 
-**FIXME: add squash code here**
+This is easy to do with the following two commands:
+```
+$ git reset --soft master
+$ git commit -m 'fix the markdown compiler
+```
+> **NOTE:**
+> The `git reset --soft` command above is a bit subtle.
+> It works by moving our *branch pointer* to `master` without changing the contents of the *working tree* (what git calls the actual files on the hard drive).
+> So when we run the subsequent `git commit` command,
+> we are creating a new commit based off of master with the contents of all the previous commits.
+>
+> Obvious, right?
+>
+> <img src=img/learn-git.jpg width=300px />
+
+And now we are only a single commit ahead of `master`.
+```
+$ git log --oneline master..HEAD
+```
+At this point we are ready to merge back into `master` and delete the worktree...
+but instead of doing that we will explore the `itera` script.
 
 ## itera
 
@@ -248,7 +287,26 @@ Test the `itera` script by first `cd`ing back to your main repo folder and run
 ```
 $ itera -m openrouter+deepseek 'fix the test cases'
 ```
-it should go brr for a few minutes again and then give a nice clean commit.
+You'll likely see two errors when running the command above:
+1. `itera` by default enforces that we have passing test cases before running.
+    (This is to ensure that when we are using it to add new features we start off in a sane/working state.)
+    You can disable this initial check by adding the `--allow-red` flag to the itera command.
+2. `itera` internally calls `committe`, and `committe` refuses to run if the git repo is not clean.
+    (This is to ensure that an LLM commit won't overwrite uncommitted human work.)
+    The previous commands have created a few files in the current folder that are not tracked by git and so the repo is not clean.
+    You can view what these files are with
+    ```
+    $ git status
+    ```
+    Observe they are not important, and then you can delete them with
+    ```
+    $ git clean -fd
+    ```
+    (The command above deletes all non-tracked files and is a useful git incantation to memorize.)
+
+Applying these fixes, itera should go brr for a few minutes again and then give a nice clean commit.
+
+<img src=img/ralphing.png width=300px />
 
 ## Submission
 
@@ -297,5 +355,7 @@ For sandboxing:
     (This is because it is running potentially unsafe LLM code.)
     `sandbox` by default allows only read access to the current folder,
     and this breaks docker (which requires read/write access elsewhere in the filesystem).
-    The easiest way for you all to get around this limitation for now is to not use the `itera` command, but to use the `ralph.sh` command that you ran above.
-    You won't need to run multiple agents in parallel, and you aren't required to squash your commits, so you don't need the QOL improvements that `itera` brings.
+    The easiest way for you to solve this problem is to edit your `ralph.sh` command that you wrote above to remove the `sandbox` invocation.
+    This is mostly safe because the actual LLM code will be running inside a docker container, and so it can't get into too much trouble no matter what it does.
+
+    (There are more sophisticated things that you could do for a stronger sandbox, but that's beyond the scope of what you should worry about for now.)
