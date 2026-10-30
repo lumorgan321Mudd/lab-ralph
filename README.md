@@ -1,6 +1,8 @@
 # Ralph Loops
 
-The Ralph Loop is one of the most common AI-assisted programming techniques.
+<img src=img/pooh.png width=300px align=right />
+
+The Ralph Loop is one of the most common AI agents.
 This lab has you write your own Ralph loop and use it to solve a multi-step problem in a repo.
 At the end, an optional final step walks you through using the Ralph loop to solve the last pagila homework.
 
@@ -67,8 +69,13 @@ $ ./test.sh
 > **ASIDE:**
 > AI is exceptionally good at writing production quality code when it is provided with good test cases
 > (and it has been since at least 2023).
-> Many developers use a *test driven development* (TDD) workflow with AI where the developer writes the test cases and then tells AI to implement the functions.
+> Many experienced developers use a *test driven development* (TDD) workflow with AI where the developer writes the test cases and then tells AI to implement the functions.
 > This is a good way for the developer to still stay in touch with the code and "drive" the model effectively.
+> A major growth area for most students / junior developers is that you all refuse to write tests for your code.
+>
+> <img src=img/tdd.jpg width=250px />
+>
+> A lack of tests has always made writing code painful, but it makes writing code with AI much more painful.
 
 Most git tutorials would suggest creating a new *branch* at this point.
 But we will create a *worktree* instead.
@@ -178,10 +185,10 @@ $ cat > ~/ralph.sh <<'EOFF'
 # we need to initialize dic here.
 # This is because bash functions happen at the process level,
 # and a shell script is a different process than your interactive bash repl.
-eval "$(dic --init)"
+eval "$(dic --init)" 2>/dev/null
 
 # the loop is below
-for i in $(seq 0 9); do
+for i in $(seq 0 99); do
     echo '----------------------------------------'
     echo "ralph loop i=$i"
     echo '----------------------------------------'
@@ -217,11 +224,11 @@ $ chmod a+x ~/ralph.sh
 
 And now let the llm go brr....
 
-<img src=img/llm-maximalism_meme.jpg width=300px />
+<img src="img/llm-maximalism_meme.jpg" width=300px />
 
 ```
-$ cd ~/markdown-bugix # ensure we're in the right worktree
-$ ~/ralph.sh
+$ cd ~/markdown-bugfix # ensure we're in the right worktree
+$ ~/ralph.sh -m openrouter+deepseek
 ```
 My code took about 5 minutes and $0.03 to finish.
 But since everything about llms is nondeterministic, YMMV.
@@ -256,7 +263,7 @@ So it would be good practice to *squash* these commits into a single commit befo
 This is easy to do with the following two commands:
 ```
 $ git reset --soft master
-$ git commit -m 'fix the markdown compiler
+$ git commit -m 'fix the markdown compiler'
 ```
 > **NOTE:**
 > The `git reset --soft` command above is a bit subtle.
@@ -266,7 +273,7 @@ $ git commit -m 'fix the markdown compiler
 >
 > Obvious, right?
 >
-> <img src=img/learn-git.jpg width=300px />
+> <img src=img/learn-git.jpg width=200px />
 
 And now we are only a single commit ahead of `master`.
 ```
@@ -282,6 +289,7 @@ For example it:
 1. creates the worktree automatically
 2. squashes commits automatically
 3. merges the final commit automatically
+4. provides a percent complete timer for `./test.sh` based on historic runtimes
 
 Test the `itera` script by first `cd`ing back to your main repo folder and run
 ```
