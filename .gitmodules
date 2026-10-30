@@ -1,0 +1,3 @@
+[submodule "markdown-compiler-solutionish"]
+	path = markdown-compiler-solutionish
+	url = https://github.com/mikeizbicki/markdown-compiler-solutionish
