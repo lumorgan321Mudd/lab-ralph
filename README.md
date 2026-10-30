@@ -314,7 +314,7 @@ You'll likely see two errors when running the command above:
 
 Applying these fixes, itera should go brr for a few minutes again and then give a nice clean commit.
 
-<img src=img/ralphing.png width=300px />
+<img src=img/ralphing.jpg width=300px />
 
 ## Submission
 
