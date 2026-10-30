@@ -293,7 +293,11 @@ For example it:
 
 Test the `itera` script by first `cd`ing back to your main repo folder and run
 ```
-$ itera -m openrouter+deepseek 'fix the test cases'
+$ itera -m openrouter+deepseek <<EOF
+$(files-to-prompt .)
+
+fix the test cases
+EOF
 ```
 You'll likely see two errors when running the command above:
 1. `itera` by default enforces that we have passing test cases before running.
