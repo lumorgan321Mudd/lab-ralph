@@ -37,7 +37,7 @@ def compile_headers(line):
 
 
 def compile_italic_star(line):
-    return line
+    return _pair(line, '*', '<i>', '</i>')
 
 
 def compile_italic_underscore(line):
