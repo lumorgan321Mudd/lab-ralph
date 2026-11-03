@@ -6,7 +6,7 @@ from markdown_compiler.util.line_functions import *
 
 
 def compile_lines(text):
-    '''
+    r'''
     Apply every markdown transformation to the input text.
 
     >>> compile_lines('This is a **bold** _italic_ `code` test.\\n')
@@ -19,11 +19,12 @@ def compile_lines(text):
     ... """))
     <BLANKLINE>
     <h1> A header</h1>
+    <BLANKLINE>
     <p>
     A paragraph with a <a href="https://x">link</a>.
     </p>
     '''
-    lines = text.split('\\n')
+    lines = text.split('\n')
     new_lines = []
     in_paragraph = False
     for line in lines:
@@ -35,7 +36,7 @@ def compile_lines(text):
         else:
             if line[0] != '#' and not in_paragraph:
                 in_paragraph = True
-                line = '<p>\\n' + line
+                line = '<p>\n' + line
             line = compile_headers(line)
             line = compile_strikethrough(line)
             line = compile_bold_stars(line)
@@ -46,7 +47,7 @@ def compile_lines(text):
             line = compile_images(line)
             line = compile_links(line)
         new_lines.append(line)
-    return '\\n'.join(new_lines)
+    return '\n'.join(new_lines)
 
 
 def markdown_to_html(markdown, add_css):
