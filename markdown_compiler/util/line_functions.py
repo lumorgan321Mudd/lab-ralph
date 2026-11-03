@@ -94,4 +94,12 @@ def compile_links(line):
 
 
 def compile_images(line):
-    return line
+    out = line
+    while '![' in out:
+        i = out.find('![')
+        j = out.find('](', i)
+        k = out.find(')', j)
+        if j < 0 or k < 0:
+            break
+        out = out[:i] + f'<img src="{out[j+2:k]}" alt="{out[i+2:j]}" />' + out[k+1:]
+    return out
