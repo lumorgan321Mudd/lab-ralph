@@ -51,7 +51,9 @@ def compile_strikethrough(line):
 
 
 def compile_bold_stars(line):
-    return line
+    if line.count('**') % 2 == 1:
+        return line
+    return _pair(line, '**', '<b>', '</b>')
 
 
 def compile_bold_underscore(line):
