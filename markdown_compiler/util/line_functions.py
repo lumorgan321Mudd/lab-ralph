@@ -28,7 +28,12 @@ def _pair(line, delim, open_tag, close_tag):
 
 
 def compile_headers(line):
-    return line
+    if not line.startswith('#'):
+        return line
+    level = 0
+    while level < len(line) and line[level] == '#':
+        level += 1
+    return f'<h{level}>{line[level:]}</h{level}>'
 
 
 def compile_italic_star(line):
