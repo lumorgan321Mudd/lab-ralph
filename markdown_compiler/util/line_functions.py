@@ -37,6 +37,8 @@ def compile_headers(line):
 
 
 def compile_italic_star(line):
+    if line.count('*') % 2 == 1:
+        return line
     return _pair(line, '*', '<i>', '</i>')
 
 
